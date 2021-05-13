@@ -6,13 +6,12 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com">
 	<link href="https://fonts.googleapis.com/css2?family=DotGothic16&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
-	https://kit.fontawesome.com/##yourfontawsomekeyhere##
- 	<title>NR Departure Board 1.1.4 (C) R.Farnworth 2021</title>
+ 	<title>NR Departure Board 1.1.4kf (C) R.Farnworth 2021</title>
 
    </head>
 <style>
 	t1 {font-family: 'Open Sans';
-	   width: 354px;
+	   width: 320px;
 	   display: inline-block;
 	   color: rgb(255,255,255);
 	   background-color: rgb(0,0,0);
@@ -23,29 +22,29 @@
 	   display: inline-block;
 	   color: rgb(255,153,0);
 	   background-color: rgb(0,0,0);
-	   font-size: 16px; 
+	   font-size: 14px; 
 	   sans-serif ;}
 	p2 {font-family: 'DotGothic16';
-	   width: 189px;
+	   width: 155px;
 	   display: inline-block;
 	   color: rgb(255,153,0);
 	   background-color: rgb(0,0,0);
-	   font-size: 16px;
+	   font-size: 14px;
 	   sans-serif ;}
 	p3 {font-family: 'DotGothic16';
 	   width: 80px;
 	   display: inline-block;
 	   color: rgb(255,153,0);
 	   background-color: rgb(0,0,0);
-	   font-size: 16px; 
+	   font-size: 14px; 
 	   sans-serif ;}
 	p4 {font-family: 'DotGothic16';
 	   width: 35px;
 	   display: inline-block;
 	   color: rgb(255,153,0);
 	   background-color: rgb(0,0,0);
-	   font-size: 16px; 
-	   sans-serif ;}
+	   font-size: 14px; 
+	   sans-serif ;}        
    .marquee {
 	    font-family: 'DotGothic16';
  	    font-size: 16px;
@@ -64,7 +63,7 @@
         .marquee p {
             position: absolute;
 	    display: inline-block;
-            width: 354px;
+            width: 300%;
             height: 25px;
             margin: 0px;
 	    white-space: nowrap;
@@ -75,7 +74,7 @@
             transform: translateX(100%);
             -moz-animation: scroll-left 4s linear infinite;
             -webkit-animation: scroll-left 4s linear infinite;
-            animation: scroll-left 30s linear infinite;
+            animation: scroll-left 60s linear infinite;
         }
         
         @-moz-keyframes scroll-left {
@@ -98,9 +97,9 @@
         
         @keyframes scroll-left {
             0% {
-                -moz-transform: translateX(100%);
-                -webkit-transform: translateX(100%);
-                transform: translateX(100%);
+                -moz-transform: translateX(25%);
+                -webkit-transform: translateX(25%);
+                transform: translateX(25%);
             }
             100% {
                 -moz-transform: translateX(-200%);
@@ -126,8 +125,12 @@
 	</div>
 
 <script>
-	//  Version 1.1.4 (prod) of NR Departure Board widget 
+	//  Version 1.1.4kf (prod) of NR Departure Board widget 
 	// (C) R.Farnworth 2021
+	// 1.1.4kf  - Tweaked version by Kevin Fairhurst
+	//          - Allow for multiple replacement of erroneous characters in NRCC messages
+	//          - Show NRCC messages in reverse order
+	//          - Tweaks around using in a 320px wide block, and to allow for wider marquee 
 	// 1.1.4 Remove erroneous characters in NRCC messages causing multiple messages to overlap
 	// 1.1.3 Have a marquee scroll of incident/warning messages appropriate to the line 
 	// 1.1.2 Resize to 354pixel wide to make a 1/3 of screen widget and stop scroll bars to allow resizing to show fewer trains
@@ -194,7 +197,7 @@
 		const url_core = "https://huxley.apphb.com/fast/"+v_from+"/to/"+v_to+"/10?accessToken="+url_apitoken;
 
 		// Main code to make API call, wait for a response and then process
-		if (v_apisaver == "ON" && (v_hournow >= 0 && v_hournow <= 6 )) {
+		if (v_apisaver == "ON" && (v_hournow >= 0 && v_hournow <= 5 )) {
 			document.getElementById("t_title").innerHTML = v_heading;
 			document.getElementById("d_displayline0a").innerHTML = "&nbsp";
 			document.getElementById("d_displayline0b").innerHTML = "API saver is currently on";
@@ -202,7 +205,6 @@
 			document.getElementById("d_displayline0d").innerHTML = "&nbsp";
 		} else {
 			let arr_traindata = [];
-			let arr_trainmsg = [];
 			let requestURL = url_core;
 	    		let request = new XMLHttpRequest();
 		    	request.open('GET', requestURL);
@@ -232,7 +234,7 @@
 						v_split_std = v_lineid.trainServices[v_scanjson].std;
 						v_split_etd = v_lineid.trainServices[v_scanjson].etd;
 						v_split_dest = v_lineid.trainServices[v_scanjson].destination[0].locationName;
-						v_split_dest = v_split_dest.substring(0,23);
+						v_split_dest = v_split_dest.substring(0,18);
 						v_split_origin = v_lineid.trainServices[v_scanjson].origin[0].locationName;
 						v_split_plat = v_lineid.trainServices[v_scanjson].platform;
 						v_split_toc = v_lineid.trainServices[v_scanjson].operatorCode;
@@ -271,21 +273,16 @@
 
 					// Get the National Control Centre messages appropriate to the train timetable/direction
 					//
+					var v_nrccmessages = "";
 					if (v_lineid.nrccMessages == null) {
 						v_nrccmessages = "There are no service status messages";
 					} else {
-						const v_lineidmsgs = v_lineid.nrccMessages.length;
-						var v_scanjson = 0;
-						var v_validelements = 0;
-						var v_nrccmessages = "";
-						while (v_scanjson < v_lineidmsgs) {
+						var v_scanjson = v_lineid.nrccMessages.length;
+						while (v_scanjson > 0) {
+							v_scanjson = v_scanjson - 1;
 							v_message = v_lineid.nrccMessages[v_scanjson].value;
-							v_message = v_message.replace("<p>","");
-							v_message = v_message.replace("</p>","");
-							arr_trainmsg.push([v_scanjson,v_message]);
-							v_nrccmessages = v_nrccmessages + " " + v_message;
-							v_validelements = v_validelements + 1;
-							v_scanjson = v_scanjson + 1;
+							v_message = v_message.replace(/\<p\>|\<\/p\>|\\n|\\r/gi,"").trim();
+							v_nrccmessages += v_message + " ";
 						}
 					}
 					document.getElementById("d_displaynrccmsgtext").innerHTML = v_nrccmessages;

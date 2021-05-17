@@ -49,7 +49,7 @@
 	    font-family: 'DotGothic16';
  	    font-size: 16px;
 	    display: inline-block;
-	    width: 354px;
+	    width: 320px;
             height: 25px;
 	    padding: 0px;
 	    margin: 0px;
@@ -131,6 +131,7 @@
 	//          - Allow for multiple replacement of erroneous characters in NRCC messages
 	//          - Show NRCC messages in reverse order
 	//          - Tweaks around using in a 320px wide block, and to allow for wider marquee 
+	//          - Changed timer to use setTimeout instead of setInterval
 	// 1.1.4 Remove erroneous characters in NRCC messages causing multiple messages to overlap
 	// 1.1.3 Have a marquee scroll of incident/warning messages appropriate to the line 
 	// 1.1.2 Resize to 354pixel wide to make a 1/3 of screen widget and stop scroll bars to allow resizing to show fewer trains
@@ -143,8 +144,8 @@
 	// Max number of trains to show is five
 	// Timer is: 120,000 = 1000 x 60 x 2 (1000ms x 60 seconds x 2 mins = 2mins)
 
+	var myTimer = 120000;
 	myMain();
-	var myTimer = setInterval(myMain, 120000);
 
 	function myMain() {
 
@@ -289,6 +290,11 @@
 				}
 			}
 		}
+
+	    	// Snooze for the alloted time then re-run the main proc!
+
+	    	setTimeout( myMain, myTimer );
+
 	}
 
     </script>
